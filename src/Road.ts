@@ -1,4 +1,4 @@
-import lerp from "./utils";
+import { lerp } from "./utils";
 
 class Road {
   x: number;
@@ -21,7 +21,7 @@ class Road {
     this.left = x - width / 2;
     this.right = x + width / 2;
 
-    const infinity = 100000;
+    const infinity = 10000;
     this.top = -infinity;
     this.bottom = infinity;
 

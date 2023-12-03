@@ -3,42 +3,49 @@ class Controls {
   left: boolean;
   right: boolean;
   reverse: boolean;
+
+  direction: string;
+  turn: string;
+
   constructor() {
     this.forward = false;
     this.left = false;
     this.right = false;
     this.reverse = false;
     this.#addkeyboardListeners();
+
+    this.direction = "stop"
+    this.turn = 'center'
   }
   #addkeyboardListeners() {
     document.onkeydown = (event) => {
       switch (event.key) {
         case 'ArrowLeft':
-          this.left = true;
+          this.turn = "left"
           break;
         case 'ArrowRight':
-          this.right = true;
+          this.turn = "right"
           break;
         case 'ArrowUp':
-          this.forward = true;
+          this.direction = "foward"
           break;
         case 'ArrowDown':
-          this.reverse = true;
+          this.direction = "reverse"
           break;
       }
       document.onkeyup = (event) => {
         switch (event.key) {
           case 'ArrowLeft':
-            this.left = false;
+            this.turn = 'center';
             break;
           case 'ArrowRight':
-            this.right = false;
+            this.turn = 'center';
             break;
           case 'ArrowUp':
-            this.forward = false;
+            this.direction = "stop"
             break;
           case 'ArrowDown':
-            this.reverse = false;
+            this.direction = "stop"
             break;
         }
       };
