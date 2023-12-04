@@ -1,5 +1,6 @@
 import Controls from './Controls.ts';
 import Sensor from './Sensor.js';
+import { polygonIntersect } from './utils.ts';
 
 type Polygon = {
   x: number;
@@ -22,6 +23,7 @@ class Car {
 
 
   polygon: Polygon[];
+  damaged: boolean;
 
   controls = new Controls();
   sensor = new Sensor(this)
@@ -36,12 +38,27 @@ class Car {
     this.friction = 0.05;
     this.angle = 0;
     this.polygon = []
+    this.damaged = false;
 
   }
-  update(roadBorders: any[]) {
+  update(roadBorders: {
+    x: number,
+    y: number
+  }[][]) {
     this.#move();
     this.polygon = this.#createPolygon()
+    this.damaged = this.#assessDamaged(roadBorders)
     this.sensor.update(roadBorders)
+  }
+
+  #assessDamaged(roadBorders: {
+    x: number,
+    y: number
+  }[][]) {
+    for (let i = 0; i < roadBorders.length; i++) {
+      if (polygonIntersect(this.polygon, roadBorders[i])) return true
+    }
+    return false
   }
 
   #createPolygon(): Polygon[] {
@@ -116,6 +133,12 @@ class Car {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
+    if (this.damaged) {
+      ctx.fillStyle = 'yellow'
+    } else {
+      ctx.fillStyle = 'black'
+    }
+
     ctx.beginPath()
     ctx.moveTo(this.polygon[0].x, this.polygon[0].y)
 
