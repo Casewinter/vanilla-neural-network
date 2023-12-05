@@ -1,18 +1,18 @@
-import Controls from './Controls.ts';
-import Sensor from './Sensor.js';
-import { polygonIntersect } from './utils.ts';
+import Controls from "./Controls.ts";
+import Sensor from "./Sensor.js";
+import { polygonIntersect } from "./utils.ts";
 
 type Polygon = {
   x: number;
-  y: number
-}
-
+  y: number;
+};
 
 class Car {
   x: number;
   y: number;
   width: number;
   height: number;
+  controlType: string;
 
   speed: number;
   acceleration: number;
@@ -21,44 +21,64 @@ class Car {
   friction: number;
   angle: number;
 
-
   polygon: Polygon[];
   damaged: boolean;
 
-  controls = new Controls();
-  sensor = new Sensor(this)
-  constructor(x: number, y: number, width: number, height: number) {
+  sensor = new Sensor(this);
+  controls: any;
+
+  constructor(
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    controlType: string,
+    maxSpeed: number
+  ) {
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
+    this.controlType = controlType;
+
     this.speed = 0;
     this.acceleration = 0.2;
-    this.maxSpeed = 4;
+    this.maxSpeed = maxSpeed;
     this.friction = 0.05;
     this.angle = 0;
-    this.polygon = []
+
+    this.polygon = [];
+
     this.damaged = false;
 
-  }
-  update(roadBorders: {
-    x: number,
-    y: number
-  }[][]) {
-    this.#move();
-    this.polygon = this.#createPolygon()
-    this.damaged = this.#assessDamaged(roadBorders)
-    this.sensor.update(roadBorders)
+    this.controls = new Controls(this.controlType);
   }
 
-  #assessDamaged(roadBorders: {
-    x: number,
-    y: number
-  }[][]) {
-    for (let i = 0; i < roadBorders.length; i++) {
-      if (polygonIntersect(this.polygon, roadBorders[i])) return true
+  update(
+    roadBorders: {
+      x: number;
+      y: number;
+    }[][]
+  ) {
+    this.#move();
+    if (!this.damaged) {
+      this.polygon = this.#createPolygon();
+      this.damaged = this.#assessDamaged(roadBorders);
     }
-    return false
+
+    this.sensor.update(roadBorders);
+  }
+
+  #assessDamaged(
+    roadBorders: {
+      x: number;
+      y: number;
+    }[][]
+  ) {
+    for (let i = 0; i < roadBorders.length; i++) {
+      if (polygonIntersect(this.polygon, roadBorders[i])) return true;
+    }
+    return false;
   }
 
   #createPolygon(): Polygon[] {
@@ -67,19 +87,19 @@ class Car {
     const alpha = Math.atan2(this.width, this.height);
     points.push({
       x: this.x - Math.sin(this.angle - alpha) * rad,
-      y: this.y - Math.cos(this.angle - alpha) * rad
+      y: this.y - Math.cos(this.angle - alpha) * rad,
     });
     points.push({
       x: this.x - Math.sin(this.angle + alpha) * rad,
-      y: this.y - Math.cos(this.angle + alpha) * rad
+      y: this.y - Math.cos(this.angle + alpha) * rad,
     });
     points.push({
       x: this.x - Math.sin(Math.PI + this.angle - alpha) * rad,
-      y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad
+      y: this.y - Math.cos(Math.PI + this.angle - alpha) * rad,
     });
     points.push({
       x: this.x - Math.sin(Math.PI + this.angle + alpha) * rad,
-      y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad
+      y: this.y - Math.cos(Math.PI + this.angle + alpha) * rad,
     });
     return points;
   }
@@ -87,23 +107,23 @@ class Car {
   #move() {
     //move to front or reverse
     switch (this.controls.direction) {
-      case 'foward':
+      case "foward":
         this.speed += this.acceleration;
         break;
-      case 'reverse':
+      case "reverse":
         this.speed -= this.acceleration;
         break;
     }
 
-    //turn 
+    //turn
     if (this.speed != 0) {
       const toggle = this.speed > 0 ? 1 : -1;
 
       switch (this.controls.turn) {
-        case 'left':
+        case "left":
           this.angle += 0.03 * toggle;
           break;
-        case 'right':
+        case "right":
           this.angle -= 0.03 * toggle;
           break;
       }
@@ -117,7 +137,7 @@ class Car {
       this.speed = -this.maxSpeed / 2;
     }
 
-    //friction 
+    //friction
     if (this.speed > 0) {
       this.speed -= this.friction;
     } else if (this.speed < 0) {
@@ -133,21 +153,15 @@ class Car {
   }
 
   draw(ctx: CanvasRenderingContext2D) {
-    if (this.damaged) {
-      ctx.fillStyle = 'yellow'
-    } else {
-      ctx.fillStyle = 'black'
-    }
-
-    ctx.beginPath()
-    ctx.moveTo(this.polygon[0].x, this.polygon[0].y)
+    ctx.beginPath();
+    ctx.moveTo(this.polygon[0].x, this.polygon[0].y);
 
     for (let i = 1; i < this.polygon.length; i++) {
-      ctx.lineTo(this.polygon[i].x, this.polygon[i].y)
+      ctx.lineTo(this.polygon[i].x, this.polygon[i].y);
     }
     ctx.fill();
 
-    this.sensor.draw(ctx)
+    this.sensor.draw(ctx);
   }
 }
 
