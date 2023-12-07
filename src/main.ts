@@ -10,14 +10,14 @@ const ctx = <CanvasRenderingContext2D>canvas.getContext("2d");
 const road = new Road(canvas.width / 2, canvas.width * 0.9);
 const car = new Car(road.getLaneCenter(1), 100, 30, 50, "KEYS", 4);
 
-const traffict = [new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)];
+const traffic = [new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)];
 
 Animate();
 
 function Animate() {
-  traffict.forEach((car) => car.update(road.borders));
+  traffic.forEach((car) => car.update(road.borders, []));
 
-  car.update(road.borders);
+  car.update(road.borders, traffic);
   canvas.height = window.innerHeight;
 
   ctx.save();
@@ -25,8 +25,8 @@ function Animate() {
 
   road.draw(ctx);
 
-  traffict.forEach((car) => car.draw(ctx));
-  car.draw(ctx);
+  traffic.forEach((car) => car.draw(ctx, "red"));
+  car.draw(ctx, "blue");
 
   ctx.restore();
   requestAnimationFrame(Animate);

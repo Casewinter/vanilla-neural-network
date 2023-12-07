@@ -36,6 +36,7 @@ class Controls {
           this.direction = "reverse";
           break;
       }
+
       document.onkeyup = (event) => {
         switch (event.key) {
           case "ArrowLeft":
