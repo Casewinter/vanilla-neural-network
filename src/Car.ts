@@ -1,6 +1,7 @@
 import Controls from "./Controls.ts";
 import Sensor from "./Sensor.js";
 import { polygonIntersect } from "./utils.ts";
+import NeuralNetwork from "./Network.ts";
 
 type Polygon = {
   x: number;
