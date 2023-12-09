@@ -1,3 +1,3 @@
-# vanilla-neural-network
+#Neural network made in Vanilla JS
 
-[Edit in Codeflow ⚡️](https://stackblitz.com/~/github.com/Casewinter/vanilla-neural-network)
+Tutorial by _https://www.youtube.com/watch?v=Rs_rAxEsAvI_
