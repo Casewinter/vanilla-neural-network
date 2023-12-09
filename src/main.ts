@@ -4,6 +4,11 @@ import Road from "./Road.ts";
 import Visualizer from "./Visualizer.ts";
 import NeuralNetwork from "./Network.ts";
 
+const bSave = document.getElementById("save");
+const bDiscard = document.getElementById("discard");
+bSave?.addEventListener("click", save);
+bDiscard?.addEventListener("click", discard);
+
 const carCanvas = <HTMLCanvasElement>document.getElementById("carCanvas");
 
 const networkCanvas = <HTMLCanvasElement>(
@@ -19,14 +24,18 @@ const networkCtx = <CanvasRenderingContext2D>networkCanvas.getContext("2d");
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 
 const traffic = [
-  new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(0), -100, 30, 50, "DUMMY", 2),
   new Car(road.getLaneCenter(0), -300, 30, 50, "DUMMY", 2),
   new Car(road.getLaneCenter(2), -300, 30, 50, "DUMMY", 2),
-  new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2),
-  new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(2), -500, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(1), -500, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(1), -700, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(0), -700, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(2), -900, 30, 50, "DUMMY", 2),
+  new Car(road.getLaneCenter(0), -950, 30, 50, "DUMMY", 2),
 ];
 
-const N = 100;
+const N = 1;
 const cars = generateCars(N);
 let bestCar = cars[0];
 if (localStorage.getItem("bestBrain")) {
@@ -34,7 +43,7 @@ if (localStorage.getItem("bestBrain")) {
     //@ts-ignore
     cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
     if (i != 0) {
-      NeuralNetwork.mutate(cars[i].brain, 0.2);
+      NeuralNetwork.mutate(cars[i].brain, 0.1);
     }
   }
 }
@@ -43,10 +52,12 @@ Animate();
 
 function save() {
   localStorage.setItem("bestBrain", JSON.stringify(bestCar.brain));
+  console.log("saved");
 }
 
 function discard() {
   localStorage.removeItem("bestBrain");
+  console.log("discard");
 }
 
 function generateCars(n: number) {
