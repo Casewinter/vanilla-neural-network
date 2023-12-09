@@ -25,9 +25,12 @@ class Car {
 
   polygon: Polygon[];
   damaged: boolean;
-  //disable sensor in Dummy car
 
   controls: any;
+
+  //@ts-expect-error
+  brain: NeuralNetwork;
+  useBrain: boolean;
 
   constructor(
     x: number,
@@ -35,7 +38,8 @@ class Car {
     width: number,
     height: number,
     controlType: string,
-    maxSpeed: number
+    maxSpeed: number = 3,
+    color = "blue"
   ) {
     this.x = x;
     this.y = y;
@@ -53,11 +57,13 @@ class Car {
 
     this.damaged = false;
 
-    this.controls = new Controls(this.controlType);
+    this.useBrain = controlType == "AI";
 
     if (controlType != "DUMMY") {
       this.sensor = new Sensor(this);
+      this.brain = new NeuralNetwork([this.sensor.rayCount, 6, 4]);
     }
+    this.controls = new Controls(controlType);
   }
 
   update(
@@ -75,6 +81,22 @@ class Car {
 
     if (this.sensor) {
       this.sensor.update(roadBorders, traffic);
+      const offsets = this.sensor.readings.map(
+        (
+          s: {
+            x: number;
+            y: number;
+            offset: number;
+          } | null
+        ) => (s == null ? 0 : 1 - s.offset)
+      );
+      const outputs = NeuralNetwork.feedFoward(offsets, this.brain);
+      if (this.useBrain) {
+        this.controls.forward = outputs[0];
+        this.controls.left = outputs[1];
+        this.controls.right = outputs[2];
+        this.controls.reverse = outputs[3];
+      }
     }
   }
 
@@ -118,27 +140,36 @@ class Car {
   }
 
   #move() {
-    //move to front or reverse
-    switch (this.controls.direction) {
-      case "foward":
-        this.speed += this.acceleration;
-        break;
-      case "reverse":
-        this.speed -= this.acceleration;
-        break;
+    if (this.controls.forward) {
+      this.speed += this.acceleration;
+    }
+    if (this.controls.reverse) {
+      this.speed -= this.acceleration;
     }
 
-    //turn
-    if (this.speed != 0) {
-      const toggle = this.speed > 0 ? 1 : -1;
+    if (this.speed > this.maxSpeed) {
+      this.speed = this.maxSpeed;
+    }
+    if (this.speed < -this.maxSpeed / 2) {
+      this.speed = -this.maxSpeed / 2;
+    }
 
-      switch (this.controls.turn) {
-        case "left":
-          this.angle += 0.03 * toggle;
-          break;
-        case "right":
-          this.angle -= 0.03 * toggle;
-          break;
+    if (this.speed > 0) {
+      this.speed -= this.friction;
+    }
+    if (this.speed < 0) {
+      this.speed += this.friction;
+    }
+    if (Math.abs(this.speed) < this.friction) {
+      this.speed = 0;
+    }
+    if (this.speed != 0) {
+      const flip = this.speed > 0 ? 1 : -1;
+      if (this.controls.left) {
+        this.angle += 0.03 * flip;
+      }
+      if (this.controls.right) {
+        this.angle -= 0.03 * flip;
       }
     }
 
@@ -165,7 +196,11 @@ class Car {
     this.y -= Math.cos(this.angle) * this.speed;
   }
 
-  draw(ctx: CanvasRenderingContext2D, color: string) {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    color: string,
+    drawSensor: boolean = false
+  ) {
     if (this.damaged) {
       ctx.fillStyle = "gray";
     } else {
@@ -179,7 +214,7 @@ class Car {
     }
     ctx.fill();
 
-    if (this.sensor) {
+    if (this.sensor && drawSensor) {
       this.sensor.draw(ctx);
     }
   }

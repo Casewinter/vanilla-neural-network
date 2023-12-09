@@ -1,10 +1,41 @@
 body {
   margin: 0;
   background: darkgrey;
-  text-align: center;
+
   overflow: hidden;
+
+  display: flex;
+  align-items: center;
 }
 
-#myCanvas {
+#verticalButtons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+button {
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  margin: 2px;
+  cursor: pointer;
+}
+
+button:focus {
+  outline: none;
+}
+
+#carCanvas {
   background: lightgray;
+}
+
+#networkCanvas {
+  background: black;
+}
+
+#container {
+  width: 100vw;
+  display: flex;
+  justify-content: center;
 }

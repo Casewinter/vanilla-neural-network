@@ -1,60 +1,58 @@
 class Controls {
-  direction: string;
-  turn: string;
-
-  type: string;
+  forward = false;
+  left = false;
+  right = false;
+  reverse = false;
 
   constructor(type: string) {
-    this.type = type;
+    this.forward = false;
+    this.left = false;
+    this.right = false;
+    this.reverse = false;
 
-    this.direction = "stop";
-    this.turn = "center";
-
-    switch (this.type) {
+    switch (type) {
       case "KEYS":
-        this.#addkeyboardListeners();
+        this.#addKeyboardListeners();
         break;
       case "DUMMY":
-        this.direction = "foward";
+        this.forward = true;
         break;
     }
   }
 
-  #addkeyboardListeners() {
+  #addKeyboardListeners() {
     document.onkeydown = (event) => {
       switch (event.key) {
         case "ArrowLeft":
-          this.turn = "left";
+          this.left = true;
           break;
         case "ArrowRight":
-          this.turn = "right";
+          this.right = true;
           break;
         case "ArrowUp":
-          this.direction = "foward";
+          this.forward = true;
           break;
         case "ArrowDown":
-          this.direction = "reverse";
+          this.reverse = true;
           break;
       }
-
-      document.onkeyup = (event) => {
-        switch (event.key) {
-          case "ArrowLeft":
-            this.turn = "center";
-            break;
-          case "ArrowRight":
-            this.turn = "center";
-            break;
-          case "ArrowUp":
-            this.direction = "stop";
-            break;
-          case "ArrowDown":
-            this.direction = "stop";
-            break;
-        }
-      };
+    };
+    document.onkeyup = (event) => {
+      switch (event.key) {
+        case "ArrowLeft":
+          this.left = false;
+          break;
+        case "ArrowRight":
+          this.right = false;
+          break;
+        case "ArrowUp":
+          this.forward = false;
+          break;
+        case "ArrowDown":
+          this.reverse = false;
+          break;
+      }
     };
   }
 }
-
 export default Controls;
