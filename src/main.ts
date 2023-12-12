@@ -35,13 +35,13 @@ const traffic = [
   new Car(road.getLaneCenter(0), -950, 30, 50, "DUMMY", 2),
 ];
 
-const N = 1;
+const N = 200;
 const cars = generateCars(N);
 let bestCar = cars[0];
 if (localStorage.getItem("bestBrain")) {
   for (let i = 0; i < cars.length; i++) {
     //@ts-ignore
-    cars[i].brain = JSON.parse(localStorage.getItem("bestBrain"));
+    cars[i].brain = JSON.parse(localStorage .getItem("bestBrain"));
     if (i != 0) {
       NeuralNetwork.mutate(cars[i].brain, 0.1);
     }
